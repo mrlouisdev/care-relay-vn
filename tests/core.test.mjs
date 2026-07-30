@@ -20,6 +20,19 @@ test("missing critical time requires confirmation", () => {
   const result = runCareRelay(document, "Tôi tái khám ngày 15 tháng 8 tại điểm A và thực hiện sáng tối.");
   assert.equal(result.teachBack.status, "needs_confirmation");
 });
+test("missing one-character location token requires confirmation", () => {
+  const result = runCareRelay(document, "Tôi tái khám ngày 15 tháng 8, thực hiện sáng trưa tối và liên hệ khi có dấu hiệu cảnh báo X.");
+  assert.equal(result.teachBack.status, "needs_confirmation");
+});
+test("does not invent a missing citation", () => {
+  const result = analyzeInstructionDocument({ id: "D", sections: [{ text: "Nội dung nguồn đủ dài để kiểm tra.", critical: true }] });
+  assert.equal(result.checklist[0].citation, "");
+  assert.equal(result.citationCoverage, 0);
+  assert.equal(result.status, "needs_confirmation");
+});
+test("rejects an empty checklist", () => {
+  assert.throws(() => evaluateTeachBack([], "Một phản hồi đủ dài."), /Checklist không hợp lệ/);
+});
 test("short answer abstains", () => {
   const checklist = analyzeInstructionDocument(document).checklist;
   const result = evaluateTeachBack(checklist, "Vâng");

@@ -7,7 +7,7 @@ function normalize(value) {
 }
 
 function tokens(value) {
-  return new Set(normalize(value).split(" ").filter((token) => token.length > 1));
+  return new Set(normalize(value).split(" ").filter(Boolean));
 }
 
 function overlapScore(expected, actual) {
@@ -25,7 +25,7 @@ export function analyzeInstructionDocument(document) {
   }
   const checklist = document.sections.map((section, index) => {
     const text = String(section.text ?? "").trim();
-    const citation = String(section.citation ?? `${document.id ?? "SYNTHETIC"} §${index + 1}`);
+    const citation = section.citation == null ? "" : String(section.citation).trim();
     const keywords = Array.isArray(section.keywords) && section.keywords.length
       ? section.keywords.map(String) : [...tokens(text)].slice(0, 8);
     const sourceComplete = text.length >= 12 && citation.length > 0;
@@ -46,7 +46,7 @@ export function analyzeInstructionDocument(document) {
 
 export function evaluateTeachBack(checklistInput, response) {
   const checklist = Array.isArray(checklistInput) ? checklistInput : checklistInput?.checklist;
-  if (!Array.isArray(checklist)) throw new TypeError("Checklist không hợp lệ.");
+  if (!Array.isArray(checklist) || checklist.length === 0) throw new TypeError("Checklist không hợp lệ.");
   const spoken = normalize(response);
   if (spoken.length < 8) {
     return { status: "needs_confirmation", summary: "Phản hồi quá ngắn để xác nhận mức độ hiểu.", items: checklist.map((item) => ({ ...item, teachBackStatus: "uncertain", matchScore: 0 })), criticalRecall: 0, abstained: true };
