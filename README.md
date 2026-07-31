@@ -12,7 +12,9 @@ npm run benchmark
 npm run serve
 ```
 
-Open `http://localhost:8080/`.
+Open `http://localhost:8080/demo/` (the root URL redirects there).
+
+Live demo: https://mrlouisdev.github.io/care-relay-vn/demo/
 
 ## Implemented
 
